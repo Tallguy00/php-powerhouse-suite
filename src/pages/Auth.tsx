@@ -39,7 +39,6 @@ const Auth = () => {
         });
         if (error) throw error;
         toast.success(lang === "am" ? "መለያዎ ተፈጥሯል!" : "Account created!");
-        navigate("/dashboard");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: form.email,
@@ -47,7 +46,6 @@ const Auth = () => {
         });
         if (error) throw error;
         toast.success(lang === "am" ? "እንኳን ደህና መጡ!" : "Welcome back!");
-        navigate("/dashboard");
       }
     } catch (err: any) {
       toast.error(err.message ?? "Something went wrong");
