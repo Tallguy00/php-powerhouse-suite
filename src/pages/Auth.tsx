@@ -14,15 +14,21 @@ import { Loader2 } from "lucide-react";
 const Auth = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, roles, loading: authLoading } = useAuth();
   const { t, lang } = useLang();
   const [mode, setMode] = useState<"signin" | "signup">((params.get("mode") as any) || "signin");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ full_name: "", phone: "", email: "", password: "" });
 
   useEffect(() => {
-    if (user) navigate("/dashboard", { replace: true });
-  }, [user, navigate]);
+    if (authLoading || !user) return;
+    const dest = roles.includes("admin")
+      ? "/admin"
+      : roles.includes("technician")
+      ? "/technician"
+      : "/dashboard";
+    navigate(dest, { replace: true });
+  }, [user, roles, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
