@@ -9,6 +9,7 @@ import Auth from "./pages/Auth.tsx";
 import CustomerDashboard from "./pages/dashboard/CustomerDashboard.tsx";
 import AdminDashboard from "./pages/dashboard/AdminDashboard.tsx";
 import TechnicianDashboard from "./pages/dashboard/TechnicianDashboard.tsx";
+import AdminCustomers from "./pages/admin/AdminCustomers.tsx";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
 
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/dashboard" element={<CustomerDashboard />} />
               <Route path="/dashboard/*" element={<CustomerDashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/customers" element={<AdminCustomers />} />
               <Route path="/admin/*" element={<AdminDashboard />} />
               <Route path="/technician" element={<TechnicianDashboard />} />
               <Route path="/technician/*" element={<TechnicianDashboard />} />
