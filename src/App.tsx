@@ -12,6 +12,7 @@ import TechnicianDashboard from "./pages/dashboard/TechnicianDashboard.tsx";
 import AdminCustomers from "./pages/admin/AdminCustomers.tsx";
 import AdminMeters from "./pages/admin/AdminMeters.tsx";
 import AdminTariffs from "./pages/admin/AdminTariffs.tsx";
+import AdminOutages from "./pages/admin/AdminOutages.tsx";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
 
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/admin/customers" element={<AdminCustomers />} />
               <Route path="/admin/meters" element={<AdminMeters />} />
               <Route path="/admin/tariffs" element={<AdminTariffs />} />
+              <Route path="/admin/outages" element={<AdminOutages />} />
               <Route path="/admin/*" element={<AdminDashboard />} />
               <Route path="/technician" element={<TechnicianDashboard />} />
               <Route path="/technician/*" element={<TechnicianDashboard />} />
