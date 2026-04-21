@@ -22,18 +22,6 @@ const Auth = () => {
 
   const [redirected, setRedirected] = useState(false);
 
-useEffect(() => {
-  if (authLoading || !user || !roles || redirected) return;
-
-  const dest = roles.includes("admin")
-    ? "/admin"
-    : roles.includes("technician")
-    ? "/technician"
-    : "/dashboard";
-
-  setRedirected(true);
-  navigate(dest, { replace: true });
-}, [user, roles, authLoading, navigate, redirected]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +45,7 @@ useEffect(() => {
         });
         if (error) throw error;
         toast.success(lang === "am" ? "እንኳን ደህና መጡ!" : "Welcome back!");
+        navigate("/dashboard", { replace: true });
       }
     } catch (err: any) {
       toast.error(err.message ?? "Something went wrong");
