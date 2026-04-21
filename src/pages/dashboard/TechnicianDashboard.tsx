@@ -17,9 +17,9 @@ const TechnicianDashboard = () => {
     (async () => {
       const { data } = await supabase.from("technician_tasks").select("status").eq("technician_id", user.id);
       setStats({
-        assigned: data?.filter((t: any) => t.status === "assigned").length ?? 0,
-        inProgress: data?.filter((t: any) => t.status === "in_progress").length ?? 0,
-        completed: data?.filter((t: any) => t.status === "completed").length ?? 0,
+        assigned: data?.filter((t) => t.status === "assigned").length ?? 0,
+        inProgress: data?.filter((t) => t.status === "in_progress").length ?? 0,
+        completed: data?.filter((t) => t.status === "completed").length ?? 0,
       });
     })();
   }, [user, roles]);

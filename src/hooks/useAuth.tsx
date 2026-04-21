@@ -32,19 +32,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const syncSession = async (nextSession: Session | null) => {
       if (!mounted) return;
-
-      setSession(nextSession);
-      setUser(nextSession?.user ?? null);
-
+    
+      setLoading(true);
+    
       if (!nextSession?.user) {
+        setSession(null);
+        setUser(null);
         setRoles([]);
         setLoading(false);
         return;
       }
-
+    
+      // 🔒 Fetch roles FIRST
       const nextRoles = await fetchRoles(nextSession.user.id);
       if (!mounted) return;
-
+    
+      // ✅ Then update everything together
+      setSession(nextSession);
+      setUser(nextSession.user);
       setRoles(nextRoles);
       setLoading(false);
     };
@@ -79,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");

@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 const CustomerDashboard = () => {
   const { user } = useAuth();
   const { t, lang } = useLang();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState({ outstanding: 0, kwh: 0, lastPayment: "—", outages: 0 });
 
   useEffect(() => {
@@ -24,9 +24,9 @@ const CustomerDashboard = () => {
         supabase.from("outages").select("id,status").in("status", ["reported", "investigating", "in_progress"]),
       ]);
       setProfile(prof);
-      const outstanding = (bills ?? []).filter((b: any) => b.status !== "paid").reduce((s: number, b: any) => s + Number(b.amount_etb), 0);
+      const outstanding = (bills ?? []).filter((b) => b.status !== "paid").reduce((s: number, b) => s + Number(b.amount_etb), 0);
       const thisMonth = new Date(); thisMonth.setDate(1);
-      const kwh = (bills ?? []).filter((b: any) => new Date(b.period_start) >= thisMonth).reduce((s: number, b: any) => s + Number(b.kwh_consumed), 0);
+      const kwh = (bills ?? []).filter((b) => new Date(b.period_start) >= thisMonth).reduce((s: number, b) => s + Number(b.kwh_consumed), 0);
       const last = payments?.[0];
       setStats({
         outstanding,

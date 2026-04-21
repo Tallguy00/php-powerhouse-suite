@@ -92,13 +92,13 @@ const AdminDashboard = () => {
 
       // KPIs
       const payments = payRes.data ?? [];
-      const revenue = payments.reduce((s, p: any) => s + Number(p.amount_etb), 0);
+      const revenue = payments.reduce((s, p) => s + Number(p.amount_etb), 0);
       const bills = billRes.data ?? [];
       const outstanding = bills
-        .filter((b: any) => b.status === "unpaid" || b.status === "overdue")
-        .reduce((s, b: any) => s + Number(b.amount_etb), 0);
+        .filter((b) => b.status === "unpaid" || b.status === "overdue")
+        .reduce((s, b) => s + Number(b.amount_etb), 0);
       const outageRows = outageRes.data ?? [];
-      const activeOutages = outageRows.filter((o: any) =>
+      const activeOutages = outageRows.filter((o) =>
         ["reported", "investigating", "in_progress"].includes(o.status)
       ).length;
 
@@ -118,7 +118,7 @@ const AdminDashboard = () => {
         d.setMonth(sixMonthsAgo.getMonth() + i);
         buckets.set(monthKey(d), { date: d, revenue: 0 });
       }
-      payments.forEach((p: any) => {
+      payments.forEach((p) => {
         const d = new Date(p.paid_at);
         const key = monthKey(d);
         const slot = buckets.get(key);
@@ -130,7 +130,7 @@ const AdminDashboard = () => {
 
       // Outage status mix
       const mix = new Map<string, number>();
-      outageRows.forEach((o: any) => mix.set(o.status, (mix.get(o.status) ?? 0) + 1));
+      outageRows.forEach((o) => mix.set(o.status, (mix.get(o.status) ?? 0) + 1));
       setOutageMix(
         Array.from(mix.entries()).map(([k, v]) => ({
           key: k,
@@ -141,9 +141,9 @@ const AdminDashboard = () => {
 
       // Meters per region (top 6)
       const regionMap = new Map<string, { en: string; am: string }>();
-      (regionsRes.data ?? []).forEach((r: any) => regionMap.set(r.id, { en: r.name_en, am: r.name_am }));
+      (regionsRes.data ?? []).forEach((r) => regionMap.set(r.id, { en: r.name_en, am: r.name_am }));
       const regionCounts = new Map<string, number>();
-      (meterRes.data ?? []).forEach((m: any) => {
+      (meterRes.data ?? []).forEach((m) => {
         if (!m.region_id) return;
         regionCounts.set(m.region_id, (regionCounts.get(m.region_id) ?? 0) + 1);
       });

@@ -20,15 +20,20 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ full_name: "", phone: "", email: "", password: "" });
 
-  useEffect(() => {
-    if (authLoading || !user) return;
-    const dest = roles.includes("admin")
-      ? "/admin"
-      : roles.includes("technician")
-      ? "/technician"
-      : "/dashboard";
-    navigate(dest, { replace: true });
-  }, [user, roles, authLoading, navigate]);
+  const [redirected, setRedirected] = useState(false);
+
+useEffect(() => {
+  if (authLoading || !user || !roles || redirected) return;
+
+  const dest = roles.includes("admin")
+    ? "/admin"
+    : roles.includes("technician")
+    ? "/technician"
+    : "/dashboard";
+
+  setRedirected(true);
+  navigate(dest, { replace: true });
+}, [user, roles, authLoading, navigate, redirected]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
