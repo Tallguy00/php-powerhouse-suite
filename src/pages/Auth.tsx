@@ -26,20 +26,24 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+  
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+      if (mode === "signin") {
+        const { error } = await supabase.auth.signInWithPassword({
           email: form.email,
           password: form.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { full_name: form.full_name, phone: form.phone },
-          },
         });
+  
         if (error) throw error;
-        toast.success(lang === "am" ? "መለያዎ ተፈጥሯል!" : "Account created!");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
+  
+        toast.success("Welcome back!");
+  
+        // ⚡ INSTANT redirect (no waiting for roles)
+        navigate("/dashboard", { replace: true });
+      }
+  
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
         });
