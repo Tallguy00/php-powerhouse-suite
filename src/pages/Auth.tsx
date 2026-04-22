@@ -51,7 +51,7 @@ const Auth = () => {
         toast.success(lang === "am" ? "እንኳን ደህና መጡ!" : "Welcome back!");
         navigate("/dashboard", { replace: true });
       }
-    } catch (err: any) {
+    } catch (err) {
       toast.error(err.message ?? "Something went wrong");
     } finally {
       setLoading(false);

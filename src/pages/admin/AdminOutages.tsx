@@ -108,7 +108,7 @@ const AdminOutages = () => {
     setRegions((rRes.data ?? []) as Region[]);
     setTasks((tkRes.data ?? []) as Task[]);
 
-    const techIds = (trRes.data ?? []).map((r: any) => r.user_id);
+    const techIds = (trRes.data ?? []).map((r) => r.user_id);
     if (techIds.length) {
       const { data: profs } = await supabase
         .from("profiles")
