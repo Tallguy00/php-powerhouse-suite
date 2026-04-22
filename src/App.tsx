@@ -10,8 +10,11 @@ import CustomerDashboard from "./pages/dashboard/CustomerDashboard.tsx";
 import CustomerOutages from "./pages/dashboard/CustomerOutages.tsx";
 import CustomerBills from "./pages/dashboard/CustomerBills.tsx";
 import CustomerBillDetail from "./pages/dashboard/CustomerBillDetail.tsx";
+import CustomerConsumption from "./pages/dashboard/CustomerConsumption.tsx";
 import AdminDashboard from "./pages/dashboard/AdminDashboard.tsx";
 import TechnicianDashboard from "./pages/dashboard/TechnicianDashboard.tsx";
+import TechnicianTasks from "./pages/dashboard/TechnicianTasks.tsx";
+import TechnicianOutages from "./pages/dashboard/TechnicianOutages.tsx";
 import AdminCustomers from "./pages/admin/AdminCustomers.tsx";
 import AdminMeters from "./pages/admin/AdminMeters.tsx";
 import AdminTariffs from "./pages/admin/AdminTariffs.tsx";
@@ -37,6 +40,7 @@ const App = () => (
               <Route path="/dashboard/outages" element={<CustomerOutages />} />
               <Route path="/dashboard/bills" element={<CustomerBills />} />
               <Route path="/dashboard/bills/:id" element={<CustomerBillDetail />} />
+              <Route path="/dashboard/consumption" element={<CustomerConsumption />} />
               <Route path="/dashboard/*" element={<CustomerDashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/customers" element={<AdminCustomers />} />
@@ -46,6 +50,8 @@ const App = () => (
               <Route path="/admin/bills" element={<AdminBills />} />
               <Route path="/admin/*" element={<AdminDashboard />} />
               <Route path="/technician" element={<TechnicianDashboard />} />
+              <Route path="/technician/tasks" element={<TechnicianTasks />} />
+              <Route path="/technician/outages" element={<TechnicianOutages />} />
               <Route path="/technician/*" element={<TechnicianDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
