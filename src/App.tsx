@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Auth from "./pages/Auth.tsx";
 import CustomerDashboard from "./pages/dashboard/CustomerDashboard.tsx";
+import CustomerOutages from "./pages/dashboard/CustomerOutages.tsx";
 import AdminDashboard from "./pages/dashboard/AdminDashboard.tsx";
 import TechnicianDashboard from "./pages/dashboard/TechnicianDashboard.tsx";
 import AdminCustomers from "./pages/admin/AdminCustomers.tsx";
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<CustomerDashboard />} />
+              <Route path="/dashboard/outages" element={<CustomerOutages />} />
               <Route path="/dashboard/*" element={<CustomerDashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/customers" element={<AdminCustomers />} />
