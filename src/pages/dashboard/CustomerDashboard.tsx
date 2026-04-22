@@ -47,7 +47,7 @@ const CustomerDashboard = () => {
         <div className="relative">
           <p className={`text-sm opacity-90 ${lang === "am" ? "font-ethiopic" : ""}`}>{greet},</p>
           <h1 className="mt-1 text-3xl md:text-4xl font-extrabold">
-            {profile?.full_name || user?.email}
+            {profile?.full_name || user?.email} 
           </h1>
           <p className="mt-2 text-sm opacity-80">
             {lang === "am" ? "የደንበኛ ቁጥር" : "Customer No."}: <span className="font-mono font-semibold">{profile?.customer_number ?? "—"}</span>
