@@ -14,6 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Receipt, CreditCard, Loader2, Calendar, Zap, CheckCircle2, AlertCircle } from "lucide-react";
 import { z } from "zod";
+import { Link } from "react-router-dom";
 
 type BillStatus = "unpaid" | "paid" | "overdue" | "cancelled";
 
@@ -192,11 +193,13 @@ const CustomerBills = () => {
             {visible.map((b) => {
               const paid = b.effectiveStatus === "paid" || isPaidByPayments(b.id);
               return (
-                <Card key={b.id}>
+                <Card key={b.id} className="hover:border-primary/40 transition-colors">
                   <CardContent className="p-4 flex flex-col md:flex-row md:items-center gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold">#{b.id.slice(0, 8).toUpperCase()}</span>
+                        <Link to={`/dashboard/bills/${b.id}`} className="font-semibold hover:underline">
+                          #{b.id.slice(0, 8).toUpperCase()}
+                        </Link>
                         <Badge className={statusTone[paid ? "paid" : b.effectiveStatus]}>
                           {paid ? (am ? "የተከፈለ" : "paid") : b.effectiveStatus}
                         </Badge>
@@ -215,16 +218,21 @@ const CustomerBills = () => {
                       <div className="text-right">
                         <div className="text-2xl font-bold">{etb(b.amount_etb)}</div>
                       </div>
-                      {paid ? (
+                      <div className="flex items-center gap-2">
+                        <Link to={`/dashboard/bills/${b.id}`}>
+                          <Button variant="outline" size="sm">{am ? "ዝርዝር" : "Details"}</Button>
+                        </Link>
+                        {paid ? (
                         <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
                           <CheckCircle2 className="h-4 w-4" /> {am ? "ተከፍሏል" : "Paid"}
                         </span>
-                      ) : b.effectiveStatus === "cancelled" ? null : (
+                        ) : b.effectiveStatus === "cancelled" ? null : (
                         <Button onClick={() => openPay(b)} className="gap-2">
                           <CreditCard className="h-4 w-4" />
                           {am ? "ክፈል" : "Pay"}
                         </Button>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
