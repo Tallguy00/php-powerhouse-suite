@@ -76,7 +76,29 @@ const CustomerBills = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [user]);
+  useEffect(() => {
+    load();
+    if (!user) return;
+    const ch = supabase
+      .channel(`customer-bills-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "bills", filter: `customer_id=eq.${user.id}` },
+        (payload) => {
+          const nb = payload.new as Bill;
+          setBills((prev) => prev.map((b) => (b.id === nb.id ? { ...b, ...nb } : b)));
+          if (nb.status === "paid") {
+            toast({
+              title: am ? "ክፍያዎ ተረጋግጧል" : "Payment confirmed",
+              description: am ? "ሂሳብዎ እንደተከፈለ ምልክት ተደርጓል።" : "Your bill has been marked as paid.",
+            });
+          }
+        },
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const meterNum = (id: string) => meters.find((m) => m.id === id)?.meter_number ?? "—";
   const fmtDate = (d: string) => new Date(d).toLocaleDateString(am ? "am-ET" : "en-US", { dateStyle: "medium" });
