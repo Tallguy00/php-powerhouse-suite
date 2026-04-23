@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# Welcome to your Ethio Electric Power House project
 
 TODO: Document your project here
