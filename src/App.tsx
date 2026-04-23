@@ -11,6 +11,7 @@ import CustomerOutages from "./pages/dashboard/CustomerOutages.tsx";
 import CustomerBills from "./pages/dashboard/CustomerBills.tsx";
 import CustomerBillDetail from "./pages/dashboard/CustomerBillDetail.tsx";
 import CustomerConsumption from "./pages/dashboard/CustomerConsumption.tsx";
+import OutageMap from "./pages/dashboard/OutageMap.tsx";
 import AdminDashboard from "./pages/dashboard/AdminDashboard.tsx";
 import TechnicianDashboard from "./pages/dashboard/TechnicianDashboard.tsx";
 import TechnicianTasks from "./pages/dashboard/TechnicianTasks.tsx";
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/dashboard/bills" element={<CustomerBills />} />
               <Route path="/dashboard/bills/:id" element={<CustomerBillDetail />} />
               <Route path="/dashboard/consumption" element={<CustomerConsumption />} />
+              <Route path="/dashboard/outage-map" element={<OutageMap />} />
               <Route path="/dashboard/*" element={<CustomerDashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/customers" element={<AdminCustomers />} />
