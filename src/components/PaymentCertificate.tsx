@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { toast } from "sonner";
 
 export interface CertificateData {
@@ -17,7 +17,9 @@ export const PaymentCertificate = ({ data }: { data: CertificateData }) => {
 
   const downloadPDF = async () => {
     try {
-      const { default: html2pdf } = await import("html2pdf.js");
+      // html2pdf.js ships without types; load dynamically.
+      const mod: any = await import(/* @vite-ignore */ "html2pdf.js");
+      const html2pdf = mod.default ?? mod;
 
       if (!ref.current) return;
 
