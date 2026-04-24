@@ -5,10 +5,7 @@ import { useLang } from "@/i18n/LanguageContext";
 import { Logo } from "@/components/Logo";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
-import {
-  LayoutDashboard, Receipt, Activity, AlertTriangle, Gauge,
-  Users, Coins, Wrench, LogOut, Loader2,
-} from "lucide-react";
+import { LayoutDashboard, Receipt, Activity, TriangleAlert as AlertTriangle, Gauge, Users, Coins, Wrench, LogOut, Loader as Loader2, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const DashboardLayout = ({ children }: { children: ReactNode }) => {
@@ -35,6 +32,7 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
     { to: "/admin/customers", icon: Users, key: "dash_customers" as const },
     { to: "/admin/meters", icon: Gauge, key: "dash_meters" as const },
     { to: "/admin/bills", icon: Receipt, key: "dash_bills" as const },
+    { to: "/admin/payments", icon: CreditCard, key: "admin_payments" as const },
     { to: "/admin/tariffs", icon: Coins, key: "dash_tariffs" as const },
     { to: "/admin/outages", icon: AlertTriangle, key: "dash_outages" as const },
   ];

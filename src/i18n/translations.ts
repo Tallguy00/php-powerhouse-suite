@@ -78,6 +78,7 @@ export const translations = {
   dash_customers: { en: "Customers", am: "ደንበኞች" },
   dash_tariffs: { en: "Tariffs", am: "ታሪፎች" },
   dash_tasks: { en: "Tasks", am: "ተግባራት" },
+  admin_payments: { en: "Payments", am: "ክፍያዎች" },
   dash_signout: { en: "Sign Out", am: "ውጣ" },
   dash_admin: { en: "Admin", am: "አስተዳዳሪ" },
   dash_customer: { en: "Customer", am: "ደንበኛ" },
