@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useLang } from "@/i18n/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/Database/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -108,22 +108,23 @@ const AdminBills = () => {
 
   const loadAll = async () => {
     setFetching(true);
-    const [b, m, t, p] = await Promise.all([
-      supabase.from("bills").select("*").order("created_at", { ascending: false }),
-      supabase.from("meters").select("id, meter_number, customer_id, customer_type"),
-      supabase.from("tariffs").select("id, name, customer_type, price_per_kwh, active").eq("active", true),
-      supabase.from("profiles").select("id, full_name, customer_number"),
-    ]);
-    if (b.error || m.error || t.error || p.error) {
+    try {
+      const [b, m, t, p] = await Promise.all([
+        api.get("/bills"),
+        api.get("/meters"),
+        api.get("/tariffs?active=true"),
+        api.get("/profiles"),
+      ]);
+  
+      setBills(b.data);
+      setMeters(m.data);
+      setTariffs(t.data);
+      setProfiles(p.data);
+    } catch (error) {
       toast.error(am ? "ሂሳቦችን መጫን አልተቻለም" : "Failed to load bills");
+    } finally {
       setFetching(false);
-      return;
     }
-    setBills((b.data ?? []) as Bill[]);
-    setMeters((m.data ?? []) as Meter[]);
-    setTariffs((t.data ?? []) as Tariff[]);
-    setProfiles((p.data ?? []) as Profile[]);
-    setFetching(false);
   };
 
   useEffect(() => {
@@ -184,60 +185,74 @@ const AdminBills = () => {
     const meter = meterById.get(genMeterId);
     const tariff = tariffById.get(genTariffId);
     const kwh = parseFloat(genKwh);
+  
     if (!meter || !tariff || !Number.isFinite(kwh) || kwh <= 0) {
       toast.error(am ? "የሜትር፣ ታሪፍ እና ኪሎዋት-ሰዓት ይምረጡ" : "Select meter, tariff, and valid kWh");
       return;
     }
+  
     if (genStart > genEnd) {
-      toast.error(am ? "የጊዜ ክልል ልክ አይደለም" : "Period start must be before end");
+      toast.error(am ? "የጊዜ ክልል ልክ አይደለም" : "Invalid period");
       return;
     }
+  
     setGenerating(true);
-    const amount = Number((Number(tariff.price_per_kwh) * kwh).toFixed(2));
-    const { error } = await supabase.from("bills").insert({
-      meter_id: meter.id,
-      customer_id: meter.customer_id,
-      period_start: genStart,
-      period_end: genEnd,
-      due_date: genDue,
-      kwh_consumed: kwh,
-      amount_etb: amount,
-      status: "unpaid",
-    });
-    setGenerating(false);
-    if (error) {
+  
+    try {
+      await api.post("/bills", {
+        meter_id: meter.id,
+        customer_id: meter.customer_id,
+        period_start: genStart,
+        period_end: genEnd,
+        due_date: genDue,
+        kwh_consumed: kwh,
+        tariff_id: tariff.id,
+      });
+  
+      toast.success(am ? "ሂሳብ ተፈጥሯል" : "Bill generated");
+      setGenOpen(false);
+      setGenKwh("");
+      loadAll();
+    } catch {
       toast.error(am ? "ሂሳብ ማመንጨት አልተሳካም" : "Failed to generate bill");
-      return;
+    } finally {
+      setGenerating(false);
     }
-    toast.success(am ? "ሂሳብ ተፈጥሯል" : "Bill generated");
-    setGenOpen(false);
-    setGenKwh("");
-    void loadAll();
   };
-
   const setStatus = async (bill: Bill, next: BillStatus) => {
     setPendingId(bill.id + next);
-    const { error } = await supabase.from("bills").update({ status: next }).eq("id", bill.id);
-    setPendingId(null);
-    if (error) {
+  
+    try {
+      await api.put(`/bills/${bill.id}`, { status: next });
+  
+      setBills((prev) =>
+        prev.map((b) => (b.id === bill.id ? { ...b, status: next } : b))
+      );
+  
+      toast.success(am ? "ሁኔታ ተዘምኗል" : "Status updated");
+    } catch {
       toast.error(am ? "ማዘመን አልተሳካም" : "Failed to update");
-      return;
+    } finally {
+      setPendingId(null);
     }
-    setBills((prev) => prev.map((b) => (b.id === bill.id ? { ...b, status: next } : b)));
-    toast.success(am ? "ሁኔታ ተዘምኗል" : "Status updated");
   };
 
   const deleteBill = async (bill: Bill) => {
     if (!confirm(am ? "ይህን ሂሳብ ይሰርዙ?" : "Delete this bill?")) return;
+  
     setPendingId(bill.id + "del");
-    const { error } = await supabase.from("bills").delete().eq("id", bill.id);
-    setPendingId(null);
-    if (error) {
+  
+    try {
+      await api.delete(`/bills/${bill.id}`);
+  
+      setBills((prev) => prev.filter((b) => b.id !== bill.id));
+  
+      toast.success(am ? "ተሰርዟል" : "Deleted");
+    } catch {
       toast.error(am ? "መሰረዝ አልተሳካም" : "Failed to delete");
-      return;
+    } finally {
+      setPendingId(null);
     }
-    setBills((prev) => prev.filter((b) => b.id !== bill.id));
-    toast.success(am ? "ተሰርዟል" : "Deleted");
   };
 
   if (loading) {

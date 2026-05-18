@@ -4,7 +4,7 @@ import { Loader2, Search, Plus, Pencil, Gauge, MapPin, User as UserIcon, Trash2 
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useLang } from "@/i18n/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/Database/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -94,20 +94,22 @@ const AdminMeters = () => {
 
   const loadAll = async () => {
     setFetching(true);
-    const [mRes, cRes, rRes] = await Promise.all([
-      supabase.from("meters").select("*").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("id, full_name, customer_number").order("full_name"),
-      supabase.from("regions").select("id, name_en, name_am").order("name_en"),
-    ]);
-    if (mRes.error || cRes.error || rRes.error) {
-      toast.error(am ? "ሜትሮችን መጫን አልተቻለም" : "Failed to load meters");
+  
+    try {
+      const [meters, customers, regions] = await Promise.all([
+        api.getMeters(),
+        api.getCustomers(),
+        api.request ? api.request("/api/regions") : fetch(`${import.meta.env.VITE_API_URL}/api/regions`).then(r => r.json())
+      ]);
+  
+      setMeters(meters.data || meters);
+      setCustomers(customers.data || customers);
+      setRegions(regions.data || regions);
+    } catch (err) {
+      toast.error(am ? "ሜትሮችን መጫን አልተቻለም" : err.message);
+    } finally {
       setFetching(false);
-      return;
     }
-    setMeters((mRes.data ?? []) as Meter[]);
-    setCustomers((cRes.data ?? []) as Profile[]);
-    setRegions((rRes.data ?? []) as Region[]);
-    setFetching(false);
   };
 
   useEffect(() => {
@@ -152,43 +154,40 @@ const AdminMeters = () => {
   };
 
   const submit = async () => {
-    if (!form.meter_number.trim() || !form.customer_id) {
-      toast.error(am ? "የሜትር ቁጥር እና ደንበኛ ያስፈልጋል" : "Meter number and customer are required");
-      return;
-    }
-    setSaving(true);
-    const payload = {
-      meter_number: form.meter_number.trim(),
-      customer_id: form.customer_id,
-      customer_type: form.customer_type,
-      region_id: form.region_id || null,
-      status: form.status,
-    };
-    const { error } = form.id
-      ? await supabase.from("meters").update(payload).eq("id", form.id)
-      : await supabase.from("meters").insert(payload);
-    setSaving(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success(am ? "ተሳካ" : form.id ? "Meter updated" : "Meter created");
-    setOpen(false);
-    void loadAll();
+  if (!form.meter_number.trim() || !form.customer_id) {
+    toast.error(am ? "የሜትር ቁጥር እና ደንበኛ ያስፈልጋል" : "Required fields missing");
+    return;
+  }
+
+  setSaving(true);
+
+  const payload = {
+    meter_number: form.meter_number.trim(),
+    customer_id: form.customer_id,
+    customer_type: form.customer_type,
+    region_id: form.region_id || null,
+    status: form.status,
   };
 
-  const remove = async (m: Meter) => {
-    if (!confirm(am ? `ሜትር ${m.meter_number} ይሰረዝ?` : `Delete meter ${m.meter_number}?`)) return;
-    setDeleting(m.id);
-    const { error } = await supabase.from("meters").delete().eq("id", m.id);
-    setDeleting(null);
-    if (error) {
-      toast.error(error.message);
-      return;
+  try {
+    if (form.id) {
+      await api.request(`/api/meters/${form.id}`, {
+        method: "PUT",
+        body: payload
+      });
+    } else {
+      await api.createMeter(payload);
     }
-    toast.success(am ? "ተሰርዟል" : "Meter deleted");
-    setMeters((prev) => prev.filter((x) => x.id !== m.id));
-  };
+
+    toast.success(am ? "ተሳካ" : "Saved successfully");
+    setOpen(false);
+    await loadAll();
+  } catch (err) {
+    toast.error(err.message);
+  } finally {
+    setSaving(false);
+  }
+};
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!isAdmin) return <Navigate to="/dashboard" replace />;
@@ -279,7 +278,7 @@ const AdminMeters = () => {
                       size="sm"
                       variant="outline"
                       disabled={deleting === m.id}
-                      onClick={() => remove(m)}
+                      onClick={() =>(m)}
                       className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       {deleting === m.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}

@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useLang } from "@/i18n/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/supabase/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -83,44 +83,32 @@ const AdminOutages = () => {
   const [assignTech, setAssignTech] = useState<string>("");
   const [assigning, setAssigning] = useState(false);
 
-  const isAdmin = roles.includes("admin");
-
   const load = async () => {
-    setLoading(true);
-    const [oRes, rRes, trRes, tkRes] = await Promise.all([
-      supabase.from("outages").select("*").order("created_at", { ascending: false }),
-      supabase.from("regions").select("id, name_en, name_am").order("name_en"),
-      supabase.from("user_roles").select("user_id").eq("role", "technician"),
-      supabase.from("technician_tasks").select("id, outage_id, technician_id, status"),
+  setLoading(true);
+
+  try {
+    const [outages, regions, techs, tasks] = await Promise.all([
+      api.request("/api/outages"),
+      api.request("/api/regions"),
+      api.request("/api/technicians"),
+      api.request("/api/tasks"),
     ]);
 
-    if (oRes.error || rRes.error || trRes.error || tkRes.error) {
-      toast({
-        title: isAm ? "ስህተት" : "Failed to load",
-        description: oRes.error?.message ?? rRes.error?.message ?? trRes.error?.message ?? tkRes.error?.message,
-        variant: "destructive",
-      });
-      setLoading(false);
-      return;
-    }
+    setOutages(outages.data || outages);
+    setRegions(regions.data || regions);
+    setTasks(tasks.data || tasks);
 
-    setOutages((oRes.data ?? []) as Outage[]);
-    setRegions((rRes.data ?? []) as Region[]);
-    setTasks((tkRes.data ?? []) as Task[]);
-
-    const techIds = (trRes.data ?? []).map((r) => r.user_id);
-    if (techIds.length) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("id, full_name, phone")
-        .in("id", techIds);
-      setTechnicians((profs ?? []) as Technician[]);
-    } else {
-      setTechnicians([]);
-    }
+    setTechnicians(techs.data || techs);
+  } catch (err: any) {
+    toast({
+      title: isAm ? "ስህተት" : "Error",
+      description: err.message,
+      variant: "destructive",
+    });
+  } finally {
     setLoading(false);
-  };
-
+  }
+};
   useEffect(() => {
     if (isAdmin) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
